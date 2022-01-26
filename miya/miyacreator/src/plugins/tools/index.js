@@ -5,6 +5,7 @@ import { CameraControl } from './camera-control';
 import { PaintBrush } from './paint-brush';
 import { MultipleVoxels } from './multiple-voxels';
 import { MoveVoxels } from './move-voxels';
+import { CopyVoxels } from './copy-voxels';
 
 export class Tools extends AbstractPlugin {
   static meta = {
@@ -19,6 +20,7 @@ export class Tools extends AbstractPlugin {
       paint_brush: new PaintBrush(this.configs),
       multiple_voxels: new MultipleVoxels(this.configs),
       move_voxels: new MoveVoxels(this.configs),
+      copy_voxels: new CopyVoxels(this.configs),
     };
 
     this.keyToToolMap = {};

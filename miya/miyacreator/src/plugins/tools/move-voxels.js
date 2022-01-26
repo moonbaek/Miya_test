@@ -110,7 +110,6 @@ export class MoveVoxels {
     }
     
     if (intersects.length > 0) {
-      this.rollOverMesh.material.visible = false;
       const intersect = intersects[0];
       const currentPosition = new THREE.Vector3();
       currentPosition.copy(intersect.point).add(intersect.face.normal);
@@ -118,56 +117,52 @@ export class MoveVoxels {
       if(!this.start)
       {
         //console.log('move start!!!!!!!!!! this.minx = '+this.minx+'this.maxx ='+this.maxx+'current.x='+currentPosition.x);
+        const minposition_area = new THREE.Vector3();
+        const maxposition_area = new THREE.Vector3();
         if((currentPosition.x == this.maxx) && ((currentPosition.y >= this.miny) && (currentPosition.y <= this.maxy)) && ((currentPosition.z >= this.minz) && (currentPosition.z <= this.maxz)))
         {
           console.log('area x !!!');
-          this.rollOverMesh.material.visible = true;
-          const minposition_x_area = new THREE.Vector3();
-          const maxposition_x_area = new THREE.Vector3();
-          minposition_x_area.copy(new THREE.Vector3(this.maxx , this.miny , this.minz));
-          maxposition_x_area.copy(new THREE.Vector3(this.maxx , this.maxy , this.maxz));
-          const size = this.sizeFromVectors_area(minposition_x_area, maxposition_x_area,1);
+
+          minposition_area.copy(new THREE.Vector3(this.maxx , this.miny , this.minz));
+          maxposition_area.copy(new THREE.Vector3(this.maxx , this.maxy , this.maxz));          
+          const size = this.sizeFromVectors_area(minposition_area, maxposition_area,1);
 
           const rollOverGeo = new THREE.BoxBufferGeometry(size.x, size.y, size.z);
           this.rollOverMesh.geometry = new THREE.EdgesGeometry(rollOverGeo);
-          this.rollOverMesh.position.copy(this.centerBetweenVectors_area(minposition_x_area, maxposition_x_area,1));
+          this.rollOverMesh.position.copy(this.centerBetweenVectors_area(minposition_area, maxposition_area,1));
           this.rollOverMesh.computeLineDistances();
         }
         
         else if((currentPosition.y == this.maxy) && ((currentPosition.x >= this.minx) && (currentPosition.y <= this.maxx)) && ((currentPosition.z >= this.minz) && (currentPosition.z <= this.maxz)))
         {
           console.log('area y !!!');
-          this.rollOverMesh.material.visible = true;
-          const minposition_y_area = new THREE.Vector3();
-          const maxposition_y_area = new THREE.Vector3();
-          minposition_y_area.copy(new THREE.Vector3(this.minx , this.maxy , this.minz));
-          maxposition_y_area.copy(new THREE.Vector3(this.maxx , this.maxy , this.maxz));
-          const size = this.sizeFromVectors_area(minposition_y_area, maxposition_y_area,2);
+
+          minposition_area.copy(new THREE.Vector3(this.minx , this.maxy , this.minz));
+          maxposition_area.copy(new THREE.Vector3(this.maxx , this.maxy , this.maxz));
+          const size = this.sizeFromVectors_area(minposition_area, maxposition_area,2);
           const rollOverGeo = new THREE.BoxBufferGeometry(size.x, size.y, size.z);
           this.rollOverMesh.geometry = new THREE.EdgesGeometry(rollOverGeo);
-          this.rollOverMesh.position.copy(this.centerBetweenVectors_area(minposition_y_area, maxposition_y_area,2));
+          this.rollOverMesh.position.copy(this.centerBetweenVectors_area(minposition_area, maxposition_area,2));
           this.rollOverMesh.computeLineDistances();
         }
         else if((currentPosition.z == this.maxz) && ((currentPosition.y >= this.miny) && (currentPosition.y <= this.maxy)) && ((currentPosition.x >= this.minx) && (currentPosition.x <= this.maxx)))
         {
           console.log('area z !!!');
-          this.rollOverMesh.material.visible = true;
-          const minposition_z_area = new THREE.Vector3();
-          const maxposition_z_area = new THREE.Vector3();
-          minposition_z_area.copy(new THREE.Vector3(this.minx , this.miny , this.maxz));
-          maxposition_z_area.copy(new THREE.Vector3(this.maxx , this.maxy , this.maxz));
-          const size = this.sizeFromVectors_area(minposition_z_area, maxposition_z_area,3);
+
+          minposition_area.copy(new THREE.Vector3(this.minx , this.miny , this.maxz));
+          maxposition_area.copy(new THREE.Vector3(this.maxx , this.maxy , this.maxz));
+          const size = this.sizeFromVectors_area(minposition_area, maxposition_area,3);
           const rollOverGeo = new THREE.BoxBufferGeometry(size.x, size.y, size.z);
           this.rollOverMesh.geometry = new THREE.EdgesGeometry(rollOverGeo);
-          this.rollOverMesh.position.copy(this.centerBetweenVectors_area(minposition_z_area, maxposition_z_area,3));
+          this.rollOverMesh.position.copy(this.centerBetweenVectors_area(minposition_area, maxposition_area,3));
           this.rollOverMesh.computeLineDistances();
         }
       } else {
-
+        this.rollOverMesh.material.visible = true;
+        currentPosition.divideScalar(50).floor().multiplyScalar(50).subScalar(50);
+        this.rollOverMesh.position.copy(currentPosition);
+        this.rollOverMesh.computeLineDistances();
       }
-
-      
-      
     } 
     this.render();
   }
@@ -226,10 +221,11 @@ export class MoveVoxels {
         temp.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
         const disvalue = new THREE.Vector3();
         disvalue.subVectors(end, temp);
+        //'disvalue.divideScalar(50).floor().multiplyScalar(50).addScalar(25);
 
         this.sceneObjects.forEach((voxel) => {
           voxel.position.x = voxel.position.x + disvalue.x;
-          voxel.position.y = voxel.position.y + disvalue.y + 50;
+          //voxel.position.y = voxel.position.y + disvalue.y;
           voxel.position.z = voxel.position.z + disvalue.z;
           this.voxels.push(voxel);
         });
@@ -243,7 +239,14 @@ export class MoveVoxels {
         }
 
         this.voxels.splice(0, this.voxels.length);
+
         this.start = null;
+        this.minx=10000;
+        this.miny=10000;
+        this.minz=10000;
+        this.maxx=-10000;
+        this.maxy=-10000;
+        this.maxz=-10000;
       }
       this.render();
     }
@@ -258,7 +261,7 @@ export class MoveVoxels {
     const { THREE } = this;
     const size = new THREE.Vector3();
     size.subVectors(b, a);
-    size.set(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z));
+    //size.set(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z));
     size.addScalar(50);
     return size;
   }
@@ -267,7 +270,7 @@ export class MoveVoxels {
     const { THREE } = this;
     const size = new THREE.Vector3();
     size.subVectors(b, a);
-    size.set(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z));
+    //size.set(Math.abs(size.x), Math.abs(size.y), Math.abs(size.z));
     size.addScalar(50);
     if(area == 1 )size.x = 0;
     else if (area == 2)size.y=0;
@@ -279,7 +282,8 @@ export class MoveVoxels {
     let dir = b.clone().sub(a);
     const len = dir.length();
     dir = dir.normalize().multiplyScalar(len * 0.5);
-    return a.clone().add(dir);
+    const temp = a.clone().add(dir);
+    return temp;
   }
 
   centerBetweenVectors_area(a, b, area) {

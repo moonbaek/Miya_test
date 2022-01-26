@@ -70,8 +70,13 @@ export class RemoveVoxel {
     const intersects = this.raycaster.intersectObjects(this.sceneObjects);
     if (intersects.length > 0) {
       const intersect = intersects[0];
+      //const intersect_temp = this.sceneObjects[1];
+     
       this.rollOverMesh.material.visible = true;
+      console.log('this.sceneObjects.length = '+ this.sceneObjects.length);
       this.rollOverMesh.position.copy(intersect.object.position);
+      //this.rollOverMesh.position.copy(intersect_temp.object.position);
+
     } else {
       this.rollOverMesh.material.visible = false;
     }
